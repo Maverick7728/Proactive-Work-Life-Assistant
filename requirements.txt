@@ -1,0 +1,44 @@
+# Core dependencies
+streamlit>=1.28.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# AI and NLP
+transformers>=4.30.0
+torch>=2.0.0
+huggingface-hub>=0.16.0
+cohere>=4.0.0
+nltk>=3.8.0
+spacy>=3.6.0
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.21.0
+
+# Calendar and date handling
+icalendar>=5.0.0
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Location and mapping
+geopy>=2.3.0
+folium>=0.14.0
+
+# Web scraping (ethical)
+beautifulsoup4>=4.12.0
+selenium>=4.10.0
+lxml>=4.9.0
+
+# Data handling and storage
+json5>=0.9.0
+
+# Testing
+pytest>=7.4.0
+pytest-mock>=3.11.0
+
+# Development tools
+black>=23.0.0
+flake8>=6.0.0 
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-api-python-client>=2.0.0 
