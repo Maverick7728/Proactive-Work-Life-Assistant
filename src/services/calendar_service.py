@@ -43,6 +43,25 @@ class CalendarService:
         if user_email not in all_tokens:
             raise ValueError(f"No token found for user {user_email} in {token_path}")
         user_token = all_tokens[user_email]
+
+        # --- PATCH: Merge client_id and client_secret from gmail_credentials.json ---
+        creds_path = os.getenv("GOOGLE_CREDENTIALS", "config/gmail_credentials.json")
+        if not os.path.exists(creds_path):
+            raise EnvironmentError(f"GOOGLE_CREDENTIALS file not found at {creds_path}.")
+        with open(creds_path, "r", encoding="utf-8") as f:
+            creds_data = json.load(f)
+        # Support both 'web' and 'installed' keys
+        if 'web' in creds_data:
+            client_info = creds_data['web']
+        elif 'installed' in creds_data:
+            client_info = creds_data['installed']
+        else:
+            raise ValueError(f"Invalid credentials file format: missing 'web' or 'installed' key.")
+        user_token = dict(user_token)  # copy to avoid mutating original
+        user_token['client_id'] = client_info['client_id']
+        user_token['client_secret'] = client_info['client_secret']
+        # --- END PATCH ---
+
         creds = Credentials.from_authorized_user_info(user_token, SCOPES)
         self.google_creds = creds
         self.google_service = build('calendar', 'v3', credentials=creds)
@@ -59,10 +78,18 @@ class CalendarService:
 
     def _create_event_google(self, event_details: Dict[str, Any]) -> bool:
         try:
+            from config.settings import DEFAULT_TIMEZONE
+            import pytz
+            tzinfo = pytz.timezone(DEFAULT_TIMEZONE)
             start_time = self._parse_datetime(event_details['date'], event_details['time'])
+            if start_time.tzinfo is None:
+                start_time = tzinfo.localize(start_time)
             duration = event_details.get('duration', DEFAULT_MEETING_DURATION)
             end_time = start_time + timedelta(minutes=duration)
-            timezone = event_details.get('timezone', 'Asia/Kolkata')
+            if end_time.tzinfo is None:
+                end_time = tzinfo.localize(end_time)
+            timezone = event_details.get('timezone', DEFAULT_TIMEZONE)
+            attendees = [email for email in event_details.get('attendees', []) if isinstance(email, str) and email.strip()]
             event = {
                 'summary': event_details.get('title', 'Meeting'),
                 'location': event_details.get('location', ''),
@@ -75,7 +102,7 @@ class CalendarService:
                     'dateTime': end_time.isoformat(),
                     'timeZone': timezone,
                 },
-                'attendees': [{'email': email} for email in event_details.get('attendees', [])],
+                'attendees': [{'email': email} for email in attendees],
             }
             self.google_service.events().insert(calendarId='primary', body=event).execute()
             return True
@@ -159,18 +186,23 @@ class CalendarService:
 
     def _find_available_slots_google(self, target_date: date, user_emails: List[str], duration_minutes: int = 60) -> List[Dict[str, Any]]:
         try:
+            from config.settings import BUFFER_TIME, DEFAULT_TIMEZONE
             working_hours = self._get_working_hours()
             events = self.get_events(target_date, target_date)
             slots = []
             current_time = working_hours['start']
             while current_time < working_hours['end']:
                 slot_end = current_time + timedelta(minutes=duration_minutes)
-                if slot_end <= working_hours['end']:
+                # Adjust slot for buffer before and after
+                buffer_start = current_time - timedelta(minutes=BUFFER_TIME)
+                buffer_end = slot_end + timedelta(minutes=BUFFER_TIME)
+                if buffer_end <= working_hours['end']:
                     availability = self.check_availability(
                         target_date,
-                        current_time.strftime('%H:%M'),
-                        slot_end.strftime('%H:%M'),
-                        user_emails
+                        buffer_start.strftime('%H:%M'),
+                        buffer_end.strftime('%H:%M'),
+                        user_emails,
+                        timezone=DEFAULT_TIMEZONE
                     )
                     if availability['available']:
                         slots.append({
@@ -185,7 +217,7 @@ class CalendarService:
             print(f"Error finding available slots from Google Calendar: {e}")
             return []
 
-    def check_availability(self, target_date, start_time: str, end_time: str, user_emails: List[str]) -> Dict[str, Any]:
+    def check_availability(self, target_date, start_time: str, end_time: str, user_emails: List[str], timezone=None) -> Dict[str, Any]:
         target_date_obj = self._ensure_date_object(target_date)
         if not target_date_obj:
             print(f"Error checking availability: Invalid date format - target_date: {target_date}")
@@ -195,38 +227,34 @@ class CalendarService:
                 'conflicts': [],
                 'error': f"Invalid date format: {target_date}"
             }
-        return self._check_availability_google(target_date_obj, start_time, end_time, user_emails)
+        return self._check_availability_google(target_date_obj, start_time, end_time, user_emails, timezone=timezone)
 
-    def _check_availability_google(self, target_date: date, start_time: str, end_time: str, user_emails: List[str]) -> Dict[str, Any]:
+    def _check_availability_google(self, target_date: date, start_time: str, end_time: str, user_emails: List[str], timezone=None) -> Dict[str, Any]:
         try:
-            requested_start = self._parse_datetime(target_date, start_time)
-            requested_end = self._parse_datetime(target_date, end_time)
+            from config.settings import BUFFER_TIME, DEFAULT_TIMEZONE
+            tz = timezone or DEFAULT_TIMEZONE
+            import pytz
+            tzinfo = pytz.timezone(tz)
+            requested_start = tzinfo.localize(self._parse_datetime(target_date, start_time) - timedelta(minutes=BUFFER_TIME))
+            requested_end = tzinfo.localize(self._parse_datetime(target_date, end_time) + timedelta(minutes=BUFFER_TIME))
             available_users = []
             conflicts = []
+
+            # Use FreeBusy API to check all users at once
+            body = {
+                "timeMin": requested_start.isoformat(),
+                "timeMax": requested_end.isoformat(),
+                "timeZone": tz,
+                "items": [{"id": email} for email in user_emails]
+            }
+            freebusy_result = self.google_service.freebusy().query(body=body).execute()
             for email in user_emails:
-                try:
-                    events = []
-                    time_min = requested_start.isoformat() + 'Z'
-                    time_max = requested_end.isoformat() + 'Z'
-                    results = self.google_service.events().list(
-                        calendarId=email,
-                        timeMin=time_min,
-                        timeMax=time_max,
-                        singleEvents=True,
-                        orderBy='startTime'
-                    ).execute()
-                    for event in results.get('items', []):
-                        event_start = event['start'].get('dateTime', event['start'].get('date'))
-                        event_end = event['end'].get('dateTime', event['end'].get('date'))
-                        event_start_dt = datetime.fromisoformat(event_start.replace('Z', '+00:00'))
-                        event_end_dt = datetime.fromisoformat(event_end.replace('Z', '+00:00'))
-                        if (requested_start < event_end_dt and requested_end > event_start_dt):
-                            conflicts.append({'user': email, 'event': event})
-                            break
-                    else:
-                        available_users.append(email)
-                except Exception as e:
-                    conflicts.append({'user': email, 'error': str(e)})
+                busy_periods = freebusy_result['calendars'].get(email, {}).get('busy', [])
+                if busy_periods:
+                    conflicts.append({'user': email, 'busy': busy_periods})
+                else:
+                    available_users.append(email)
+
             return {
                 'available': len(available_users) == len(user_emails),
                 'available_users': available_users,

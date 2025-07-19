@@ -495,9 +495,9 @@ Sincerely,
         """
         try:
             subject = f"[Calendar Event {action.title()}] {event_details.get('title', 'Event')} on {event_details.get('date', '')}"
-            attendees = event_details.get('attendees', [])
+            attendees = [a for a in event_details.get('attendees', []) if isinstance(a, str) and a.strip()]
             organizer = event_details.get('organizer', sender_email)
-            to_emails = list(set(attendees + [organizer]))
+            to_emails = list(set([a for a in attendees + [organizer] if isinstance(a, str) and a.strip()]))
             content = f"""
 Hello,
 
