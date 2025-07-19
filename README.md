@@ -8,7 +8,7 @@ A smart virtual assistant that elevates from simple command-taking to proactive,
 - **Autonomous Planning**: Breaks goals into logical steps and researches options
 - **Multi-Tool Coordination**: Integrates with calendar, location, and email services
 - **User Confirmation**: Presents options and gets user approval before actions
-- **Employee Filtering**: Only involves mentioned employees in queries
+- **Employee Filtering**: Only involves the mentioned employees in queries
 - **Beautiful UI**: Streamlit-based interface for easy interaction
 
 ## 🚀 Quick Start
@@ -128,6 +128,3 @@ Run tests to ensure everything works correctly:
 python -m pytest tests/
 ```
 
-## 📝 License
-
-This project is open source and available under the MIT License.
