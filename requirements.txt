@@ -92,7 +92,7 @@ google-auth-oauthlib>=1.0.0
 google-api-python-client>=2.0.0
 
 # Email and SMTP
-smtplib2>=0.2.1
+# smtplib2>=0.2.1
 
 # Additional utilities
 pathlib2>=2.3.7
