@@ -1,0 +1,34 @@
+# =============================
+# Proactive Work-Life Assistant .env Template
+# Copy these lines into your .env file and fill in your actual credentials
+# =============================
+
+# === Gemini AI ===
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# === Google Calendar API ===
+GOOGLE_CALENDAR_CLIENT_ID=your_google_calendar_client_id_here
+GOOGLE_CALENDAR_CLIENT_SECRET=your_google_calendar_client_secret_here
+GOOGLE_CALENDAR_REDIRECT_URI=your_google_calendar_redirect_uri_here
+
+# === Gmail API ===
+GMAIL_CLIENT_ID=your_gmail_client_id_here
+GMAIL_CLIENT_SECRET=your_gmail_client_secret_here
+GMAIL_REDIRECT_URI=your_gmail_redirect_uri_here
+GMAIL_SENDER_EMAIL=your_verified_gmail_address_here
+
+# === Google Places API ===
+GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
+
+# === OpenTripMap API ===
+OPENTRIPMAP_API_KEY=your_opentripmap_api_key_here
+
+# === OpenStreetMap (Nominatim) ===
+# (No API key required, but you may set a custom USER_AGENT for requests)
+OSM_USER_AGENT=your_custom_user_agent_here
+
+# === Other Settings ===
+# (Add any additional environment variables below as needed)
+
+# Example:
+# DEBUG=true 

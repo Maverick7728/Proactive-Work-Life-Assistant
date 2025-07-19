@@ -5,8 +5,8 @@ from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 
 # === CONFIGURATION ===
-CLIENT_ID = "1094157793103-ikj9ru7uj9b192076chljfhi8v615405.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
+CLIENT_ID = "808658756810-d64hr9cibginad6cu44jghavmtnrg6l3.apps.googleusercontent.com"
+CLIENT_SECRET = "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"
 REDIRECT_URI = "http://localhost:8501/"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 TOKEN_PATH = os.path.join("config", "cal_token.json")
