@@ -42,3 +42,111 @@ flake8>=6.0.0
 google-auth>=2.0.0
 google-auth-oauthlib>=1.0.0
 google-api-python-client>=2.0.0 
+
+
+# Core dependencies
+streamlit>=1.28.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# AI and NLP
+transformers>=4.30.0
+torch>=2.0.0
+huggingface-hub>=0.16.0
+cohere>=4.0.0
+nltk>=3.8.0
+spacy>=3.6.0
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.21.0
+
+# Calendar and date handling
+icalendar>=5.0.0
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Location and mapping
+geopy>=2.3.0
+folium>=0.14.0
+
+# Web scraping (ethical)
+beautifulsoup4>=4.12.0
+selenium>=4.10.0
+lxml>=4.9.0
+
+# Data handling and storage
+json5>=0.9.0
+
+# Testing
+pytest>=7.4.0
+pytest-mock>=3.11.0
+
+# Development tools
+black>=23.0.0
+flake8>=6.0.0
+
+# Google API dependencies
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-api-python-client>=2.0.0
+
+# Email and SMTP
+smtplib2>=0.2.1
+
+# Additional utilities
+pathlib2>=2.3.7
+typing-extensions>=4.0.0
+
+# Logging and monitoring
+colorlog>=6.7.0
+
+# Date and time utilities
+python-dateutil>=2.8.0
+
+# HTTP and networking
+urllib3>=2.0.0
+certifi>=2023.0.0
+
+# JSON handling
+jsonschema>=4.17.0
+
+# Environment and configuration
+python-decouple>=3.8
+
+# Optional: For enhanced text processing
+textblob>=0.17.1
+
+# Optional: For better date parsing
+dateparser>=1.1.0
+
+# Optional: For enhanced logging
+structlog>=23.0.0
+
+# Optional: For API rate limiting
+ratelimit>=2.2.1
+
+# Optional: For caching
+cachetools>=5.3.0
+
+# Optional: For async operations (if needed in future)
+aiohttp>=3.8.0
+asyncio-mqtt>=0.11.0
+
+# Optional: For data validation
+pydantic>=2.0.0
+
+# Optional: For enhanced error handling
+tenacity>=8.2.0
+
+# Optional: For configuration management
+pyyaml>=6.0.0
+
+# Optional: For enhanced HTTP requests
+httpx>=0.24.0
+
+# Optional: For better JSON handling
+orjson>=3.8.0
+
+# Optional: For enhanced logging with structured data
+python-json-logger>=2.0.0

@@ -9,7 +9,7 @@ if not os.path.exists(creds_path):
     raise FileNotFoundError(f'Gmail credentials file not found at {creds_path}')
 
 flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
-creds = flow.run_local_server(port=56465)
+creds = flow.run_local_server(port=8501)
 
 # Save the credentials for the next run
 with open(token_path, 'w') as token:
