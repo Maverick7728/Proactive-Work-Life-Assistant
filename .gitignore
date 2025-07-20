@@ -138,12 +138,17 @@ config/.env
 
 # Streamlit
 .streamlit/
+# Ignore Streamlit secrets file
+.streamlit/secrets.toml
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+
+config/gmail_credentials.json
+config/gmail_token.json
 
 # OS
 .DS_Store
