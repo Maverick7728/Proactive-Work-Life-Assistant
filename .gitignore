@@ -148,8 +148,10 @@ config/.env
 *.swo
 
 config/gmail_credentials.json
-config/gmail_token.json
+config/cal_token.json
+
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db "config/*.json" 
+config/*.json 
