@@ -15,14 +15,17 @@ class RestaurantService:
         self.service = RESTAURANT_SERVICE
         self.google_api_key = os.getenv("GOOGLE_PLACES_API_KEY", "")
         self.opentripmap_api_key = os.getenv("OPENTRIPMAP_API_KEY", "")
-        if not self.google_api_key and not self.opentripmap_api_key:
-            raise EnvironmentError("At least one of GOOGLE_PLACES_API_KEY or OPENTRIPMAP_API_KEY must be set in your .env file for restaurant search. Please add your API keys and restart the app.")
+        self.geoapify_api_key = os.getenv("GEOAPIFY_API_KEY", "")
+        if not self.google_api_key and not self.opentripmap_api_key and not self.geoapify_api_key:
+            raise EnvironmentError("At least one of GOOGLE_PLACES_API_KEY, OPENTRIPMAP_API_KEY, or GEOAPIFY_API_KEY must be set in your .env file for restaurant search. Please add your API keys and restart the app.")
         self._init_apis()
     
     def _init_apis(self):
         self.available_apis = []
         if self.google_api_key:
             self.available_apis.append("google")
+        if self.geoapify_api_key:
+            self.available_apis.append("geoapify")
         if self.opentripmap_api_key:
             self.available_apis.append("opentripmap")
         if not self.available_apis:
@@ -36,6 +39,8 @@ class RestaurantService:
             try:
                 if api == "google":
                     restaurants = self._search_google_places(location, cuisine, radius)
+                elif api == "geoapify":
+                    restaurants = self._search_geoapify(location, cuisine, radius)
                 elif api == "opentripmap":
                     restaurants = self._search_opentripmap(location, cuisine, radius)
                 elif api == "fallback":
@@ -173,9 +178,84 @@ class RestaurantService:
             print(f"Fallback search error: {e}")
             return []
     
+    def _search_geoapify(self, location: str, cuisine: str = None, radius: int = 5000) -> List[Dict[str, Any]]:
+        try:
+            # Step 1: Geocode the location to get lat/lon
+            geocode_url = "https://api.geoapify.com/v1/geocode/search"
+            geocode_params = {
+                "text": location,
+                "apiKey": self.geoapify_api_key
+            }
+            geocode_resp = requests.get(geocode_url, params=geocode_params, timeout=10)
+            geocode_data = geocode_resp.json()
+            features = geocode_data.get("features", [])
+            if not features:
+                print(f"[Geoapify] No geocode results for location: {location}")
+                return []
+            coords = features[0]["geometry"]["coordinates"]
+            lon, lat = coords[0], coords[1]
+            # Step 2: Search for places (restaurants)
+            places_url = "https://api.geoapify.com/v2/places"
+            filter_str = f"circle:{lon},{lat},{radius}"
+            categories = "catering.restaurant"
+            if cuisine:
+                # Geoapify does not have cuisine filter, but we can filter results after fetching
+                pass
+            places_params = {
+                "categories": categories,
+                "filter": filter_str,
+                "limit": 30,
+                "apiKey": self.geoapify_api_key
+            }
+            places_resp = requests.get(places_url, params=places_params, timeout=10)
+            places_data = places_resp.json()
+            restaurants = []
+            for place in places_data.get("features", []):
+                prop = place.get("properties", {})
+                rest = {
+                    "id": prop.get("place_id"),
+                    "name": prop.get("name"),
+                    "address": prop.get("formatted"),
+                    "cuisine": cuisine if cuisine else prop.get("cuisine", "Various"),
+                    "rating": prop.get("rating", 0),
+                    "price_level": prop.get("price_level", None),
+                    "types": prop.get("categories", []),
+                    "geometry": {"location": {"lat": lat, "lng": lon}},
+                    "source": "geoapify",
+                    "user_ratings_total": prop.get("datasource", {}).get("raw", {}).get("user_ratings_total", 0),
+                    "business_status": prop.get("datasource", {}).get("raw", {}).get("business_status", ""),
+                    "opening_hours": prop.get("opening_hours", []),
+                    "website": prop.get("website", None),
+                    "phone": prop.get("phone", None)
+                }
+                # If cuisine is specified, filter by name or categories
+                if cuisine:
+                    if cuisine.lower() not in (rest["name"] or "").lower() and not any(cuisine.lower() in (cat or "").lower() for cat in rest["types"]):
+                        continue
+                restaurants.append(rest)
+            return restaurants
+        except Exception as e:
+            print(f"Geoapify API error: {e}")
+            return []
+    
     def _get_location_coordinates(self, location: str) -> Optional[tuple]:
         try:
-            # Use Google Geocoding API instead of Nominatim
+            # Prefer Geoapify for geocoding if API key is present
+            if self.geoapify_api_key:
+                url = "https://api.geoapify.com/v1/geocode/search"
+                params = {
+                    "text": location,
+                    "apiKey": self.geoapify_api_key
+                }
+                response = requests.get(url, params=params, timeout=10)
+                data = response.json()
+                features = data.get("features", [])
+                if features:
+                    coords = features[0]["geometry"]["coordinates"]
+                    # Geoapify returns [lon, lat]
+                    return (coords[1], coords[0])
+                return None
+            # Use Google Geocoding API if Geoapify is not available
             url = "https://maps.googleapis.com/maps/api/geocode/json"
             params = {
                 "address": location,

@@ -256,7 +256,7 @@ with col1:
     
     with col_q1:
         if st.button("📅 Check Availability", help="Check team availability"):
-            st.session_state.quick_query = "Check availability for Arnav, Yash, and Priyansh on August 12, 2025"
+            st.session_state.quick_query = "Check availability for Garv, Nidhi, and Priyansh on August 12, 2025"
     
     with col_q2:
         if st.button("🍽️ Find Restaurants", help="Search for restaurants"):
@@ -264,17 +264,17 @@ with col1:
     
     with col_q3:
         if st.button("📧 Send Email", help="Send a test email"):
-            st.session_state.quick_query = "Send a hi email to Bhavya"
+            st.session_state.quick_query = "Send a hi email to Manoj"
     
     with col_q4:
         if st.button("🤝 Schedule Meeting", help="Schedule a team meeting"):
-            st.session_state.quick_query = "Setup a meeting for Arnav, Yash, and Priyansh on August 10, 2025"
+            st.session_state.quick_query = "Setup a meeting for Nidhi and Garv for July 28, 2025 at 10:00 AM."
     
     # Chat input with enhanced styling
     user_query = st.text_area(
         "What would you like me to help you with?",
         value=getattr(st.session_state, 'quick_query', ''),
-        placeholder="Example: Setup a meeting for Arnav, Yash, and Priyansh on August 10, 2025",
+        placeholder="Example: Setup a meeting for Nidhi and Garv for July 28, 2025.",
         height=120,
         help="Describe what you need help with. The assistant can schedule meetings, find restaurants, check availability, and more!"
     )
@@ -482,7 +482,7 @@ with st.expander("💡 Example Queries & Features"):
     with col_ex1:
         st.markdown("""
         **📅 Meeting Scheduling:**
-        - "Setup a meeting for Arnav, Yash, and Priyansh on August 10, 2025"
+        - "Setup a meeting for Garv, Nidhi, and Priyansh on August 10, 2025"
         - "Schedule a team meeting tomorrow at 2 PM"
         - "Organize a meeting about project planning next Friday"
         
@@ -495,12 +495,12 @@ with st.expander("💡 Example Queries & Features"):
     with col_ex2:
         st.markdown("""
         **📊 Availability Checking:**
-        - "Check availability for John and Sarah on Monday"
+        - "Check availability for Manoj and Nidhi on Monday"
         - "When is the team free next week?"
-        - "Find common free time for Arnav, Yash, and Priyansh"
+        - "Find common free time for Garv, Nidhi, and Priyansh"
         
         **📧 Email Automation:**
-        - "Send a hi email to Bhavya"
+        - "Send a hi email to Manan"
         - "Send meeting invites to the team"
         - "Send restaurant booking confirmation"
         """)
