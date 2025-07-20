@@ -62,11 +62,11 @@ FREELANCE_ASSISTANT/
 
 ### Meeting Scheduling
 ```
-User: "Setup a meeting for arnav yash and priyansh on 10 august, 2025"
+User: "Setup a meeting for Nidhi manoj and priyansh on 10 august, 2025"
 
 Assistant: 
-1. Extracts names: arnav, yash, priyansh
-2. Checks their calendars for Aug 10, 2025
+1. Extracts names: Nidhi, manoj, priyansh
+2. Checks their calendars for July 27, 2025
 3. Finds common free time slots
 4. Presents options to user
 5. Gets confirmation
@@ -95,28 +95,6 @@ Assistant:
 - **Location**: OpenStreetMap API (completely free)
 - **Email**: SMTP with Gmail/Outlook (free)
 - **Restaurants**: Google Places API, OpenTripMap API, Zomato API (all have free tiers)
-
-### Environment Variables
-```env
-# AI Service
-HUGGINGFACE_API_KEY=your_key_here
-
-# Location Service
-OPENSTREETMAP_API_KEY=your_key_here
-
-# Restaurant APIs (Free tiers available)
-GOOGLE_PLACES_API_KEY=your_google_places_key_here
-OPENTRIPMAP_API_KEY=your_opentripmap_key_here
-ZOMATO_API_KEY=your_zomato_key_here
-
-# Email Service
-SMTP_EMAIL=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-
-# Local Storage
-LOCAL_CALENDAR_PATH=./data/calendar/
-RESTAURANT_DB_PATH=./data/restaurants.json
-```
 
 📖 **For detailed API setup instructions, see [API_SETUP.md](API_SETUP.md)**
 
