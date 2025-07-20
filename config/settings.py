@@ -3,7 +3,11 @@ Application settings and configuration
 """
 from dotenv import load_dotenv
 import os
-load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+env_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    print(f"Warning: .env file not found at {env_path}. Using environment variables from system/Streamlit Cloud.")
 from pathlib import Path
 
 # Base directory

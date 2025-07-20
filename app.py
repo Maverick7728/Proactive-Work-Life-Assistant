@@ -19,9 +19,10 @@ def read_log_file(log_path, max_lines=100):
 
 # Robust .env loading
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "config", ".env"))
-if not os.path.exists(env_path):
-    raise FileNotFoundError(f".env file not found at {env_path}. Please create it and add your API keys.")
-load_dotenv(env_path)
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    print(f"Warning: .env file not found at {env_path}. Using environment variables from system/Streamlit Cloud.")
 
 # Page configuration
 st.set_page_config(
