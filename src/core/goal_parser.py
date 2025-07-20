@@ -78,6 +78,12 @@ class GoalParser:
                 r'team\s+lunch',
                 r'lunch\s+for',
                 r'team\s+meal',
+                r'show me .*food',
+                r'show me .*restaurant',
+                r'show me .*places',
+                r'show .*food',
+                r'show .*restaurant',
+                r'show .*places',
             ],
             'availability': [
                 r'check\s+availability',
@@ -158,7 +164,7 @@ class GoalParser:
         """Determine the type of goal from the query"""
         for goal_type, patterns in self.patterns.items():
             for pattern in patterns:
-                if re.search(pattern, query):
+                if re.search(pattern, query, re.IGNORECASE):
                     return goal_type
         return None
     
@@ -199,10 +205,13 @@ class GoalParser:
             else:
                 iso_date = raw_date
         employees = self._clean_employee_names(self.name_matcher.extract_employee_names(original_query))
+        location = self._extract_location(query_lower)
+        cuisine = self._extract_cuisine(query_lower)
+        print(f"[GoalParser] Dinner goal - extracted location: {location}, cuisine: {cuisine}")
         details = {
             'type': 'dinner',
-            'location': self._extract_location(query_lower),
-            'cuisine': self._extract_cuisine(query_lower),
+            'location': location,
+            'cuisine': cuisine,
             'date': iso_date,
             'time': self._extract_time(query_lower),
             'team_size': self._extract_team_size(query_lower),
@@ -573,7 +582,9 @@ class GoalParser:
                         location = None
                         break
                 if location and len(location) > 2:
+                    print(f"[GoalParser] Matched location: {location}")
                     return location
+        print(f"[GoalParser] No location matched in: {query}")
         return None
     
     def _extract_cuisine(self, query: str) -> Optional[str]:

@@ -459,12 +459,16 @@ class Assistant:
                     'next_action': 'clarify',
                     'missing_info': ['location']
                 }
-            # Search for restaurants using Google Places and OpenTripMap APIs only
+            # Search for restaurants using all available APIs (Google, OpenTripMap, Foursquare)
+            self.logger.info(f"Searching restaurants using available APIs: {self.restaurant_service.available_apis}")
             restaurants = self.restaurant_service.search_restaurants(
                 location=location,
                 cuisine=cuisine,
                 min_rating=3.5
             )
+            self.logger.info(f"Found {len(restaurants)} restaurants from APIs: {self.restaurant_service.available_apis}")
+            if restaurants:
+                self.logger.info(f"Sample restaurant: {restaurants[0]}")
             if not restaurants:
                 return {
                     'success': False,
