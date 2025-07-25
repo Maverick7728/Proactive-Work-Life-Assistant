@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula9.AI - Proactive Work-Life Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="main-title">🤖 Nebula.AI</h1>
+                <p class="subtitle">Your Proactive Work-Life Assistant</p>
+                <div class="status-indicator">
+                    <span class="status-dot active"></span>
+                    <span class="status-text">Assistant Online</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Column - Chat Interface -->
+            <div class="left-column">
+                <!-- Quick Actions -->
+                <div class="card quick-actions-card">
+                    <h2 class="card-title">⚡ Quick Actions</h2>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" data-action="Check availability for Garv, Nidhi, and Priyansh on August 12, 2025">
+                            <i class="fas fa-calendar-check"></i>
+                            Check Availability
+                        </button>
+                        <button class="quick-action-btn" data-action="Find restaurants with Hyderabadi biryani in Hyderabad">
+                            <i class="fas fa-utensils"></i>
+                            Find Restaurants
+                        </button>
+                        <button class="quick-action-btn" data-action="Send a hi email to Manoj">
+                            <i class="fas fa-envelope"></i>
+                            Send Email
+                        </button>
+                        <button class="quick-action-btn" data-action="Setup a meeting for Nidhi and Garv for July 28, 2025 at 10:00 AM">
+                            <i class="fas fa-handshake"></i>
+                            Schedule Meeting
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Interface -->
+                <div class="card chat-card">
+                    <h2 class="card-title">💬 Chat Interface</h2>
+                    <form id="chat-form" class="chat-form">
+                        <div class="input-group">
+                            <textarea id="user-query" name="query" placeholder="What would you like me to help you with? Example: Setup a meeting for Nidhi and Garv for July 28, 2025." rows="4"></textarea>
+                            <button type="submit" class="send-btn">
+                                <span class="btn-text">🚀 Send Request</span>
+                                <div class="loading-spinner" style="display: none;">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Response Section -->
+                <div class="card response-card" id="response-card" style="display: none;">
+                    <h2 class="card-title">🤖 Assistant Response</h2>
+                    <div id="response-content" class="response-content"></div>
+                </div>
+
+                <!-- Options Section (for time slots, restaurants, etc.) -->
+                <div class="card options-card" id="options-card" style="display: none;">
+                    <h2 class="card-title" id="options-title">⏰ Select Option</h2>
+                    <div id="options-content" class="options-content"></div>
+                </div>
+            </div>
+
+            <!-- Right Column - Sidebar -->
+            <div class="right-column">
+                <!-- Settings Card -->
+                <div class="card settings-card">
+                    <h2 class="card-title">⚙️ Settings</h2>
+                    <div class="settings-content">
+                        <div class="form-group">
+                            <label for="user-email">Your Email Address</label>
+                            <input type="email" id="user-email" placeholder="your.email@company.com" />
+                            <small>This email will be used for sending meeting invites and notifications</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div class="card status-card">
+                    <h2 class="card-title">📊 Assistant Status</h2>
+                    <div class="status-content">
+                        <div class="status-item">
+                            <span class="status-dot active"></span>
+                            <span>Status: Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-icon">💬</span>
+                            <span>Conversations: <span id="conversation-count">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services Status -->
+                <div class="card services-card">
+                    <h2 class="card-title">🔧 Services</h2>
+                    <div class="services-content">
+                        <div class="service-item">
+                            <span class="status-dot active"></span>
+                            <span>AI Service</span>
+                        </div>
+                        <div class="service-item">
+                            <span class="status-dot active"></span>
+                            <span>Calendar Service</span>
+                        </div>
+                        <div class="service-item">
+                            <span class="status-dot active"></span>
+                            <span>Email Service</span>
+                        </div>
+                        <div class="service-item">
+                            <span class="status-dot active"></span>
+                            <span>Restaurant Service</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Conversations -->
+                <div class="card conversations-card">
+                    <h2 class="card-title">📝 Recent Conversations</h2>
+                    <div id="conversations-list" class="conversations-list">
+                        <p class="no-conversations">💡 No conversations yet. Try asking something!</p>
+                    </div>
+                </div>
+
+                <!-- Quick Tools -->
+                <div class="card tools-card">
+                    <h2 class="card-title">🛠️ Quick Tools</h2>
+                    <div class="tools-content">
+                        <button class="tool-btn" id="test-apis-btn">
+                            <i class="fas fa-search"></i>
+                            Test All APIs
+                        </button>
+                        <button class="tool-btn" id="clear-history-btn">
+                            <i class="fas fa-trash"></i>
+                            Clear History
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Logs Viewer -->
+                <div class="card logs-card">
+                    <h2 class="card-title">📜 System Logs</h2>
+                    <div class="logs-content">
+                        <div class="log-tabs">
+                            <button class="log-tab active" data-log="gemini">Gemini</button>
+                            <button class="log-tab" data-log="calendar">Calendar</button>
+                            <button class="log-tab" data-log="email">Email</button>
+                            <button class="log-tab" data-log="restaurant">Restaurant</button>
+                        </div>
+                        <div class="log-viewer">
+                            <pre id="log-content">Loading logs...</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <h4>🚀 Proactive Work-Life Assistant v1.0.0</h4>
+                <p>Built with ❤️ for AWS | Capabilities: Meeting Scheduling • Restaurant Booking • Availability Checking • Email Automation</p>
+            </div>
+        </footer>
+
+        <!-- Example Queries Modal -->
+        <div class="modal" id="examples-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💡 Example Queries & Features</h3>
+                    <button class="modal-close" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="examples-grid">
+                        <div class="example-category">
+                            <h4>📅 Meeting Scheduling</h4>
+                            <ul>
+                                <li>"Setup a meeting for Garv, Nidhi, and Priyansh on August 10, 2025"</li>
+                                <li>"Schedule a team meeting tomorrow at 2 PM"</li>
+                                <li>"Organize a meeting about project planning next Friday"</li>
+                            </ul>
+                        </div>
+                        <div class="example-category">
+                            <h4>🍽️ Restaurant Booking</h4>
+                            <ul>
+                                <li>"Find restaurants with Hyderabadi biryani in Hyderabad"</li>
+                                <li>"Book a restaurant for team lunch in Bangalore"</li>
+                                <li>"Find Italian restaurants near our office"</li>
+                            </ul>
+                        </div>
+                        <div class="example-category">
+                            <h4>📊 Availability Checking</h4>
+                            <ul>
+                                <li>"Check availability for Manoj and Nidhi on Monday"</li>
+                                <li>"When is the team free next week?"</li>
+                                <li>"Find common free time for Garv, Nidhi, and Priyansh"</li>
+                            </ul>
+                        </div>
+                        <div class="example-category">
+                            <h4>📧 Email Automation</h4>
+                            <ul>
+                                <li>"Send a hi email to Manan"</li>
+                                <li>"Send meeting invites to the team"</li>
+                                <li>"Send restaurant booking confirmation"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Button -->
+        <button class="help-btn" id="help-btn" title="View Examples">
+            <i class="fas fa-question"></i>
+        </button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
