@@ -150,4 +150,5 @@ NAME_VARIATIONS = {
     "Nidhi": ["nidhi", "Nidhi", "NIDHI"],
     "Manoj": ["Manoj", "manoj", "MANOJ"],
     "Garv": ["garv", "Garv", "GARV"],
+    "Ishaan": ["ishaan", "Ishaan", "ISHAAN"],
 } 
