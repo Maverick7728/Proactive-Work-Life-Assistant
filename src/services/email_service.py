@@ -31,8 +31,16 @@ class EmailService:
     """
     
     def __init__(self):
-        self.service = EMAIL_SERVICE
-        self.tone = EMAIL_TONE
+        # Check if running in Streamlit and use secrets
+        try:
+            import streamlit as st
+            self.service = st.secrets.get("EMAIL_SERVICE", "gmail")
+            self.tone = st.secrets.get("EMAIL_TONE", "professional")
+        except (ImportError, AttributeError):
+            # Fallback to config.settings
+            self.service = EMAIL_SERVICE
+            self.tone = EMAIL_TONE
+        
         self.gmail_creds = None
         self.gmail_service = None
         if self.service == "gmail" and GMAIL_API_AVAILABLE:
@@ -62,8 +70,16 @@ class EmailService:
         pass
 
     def _init_gmail(self):
-        creds_path = os.getenv("GMAIL_CREDENTIALS", "config/gmail_credentials.json")
-        token_path = os.getenv("GMAIL_TOKEN", "config/gmail_token.json")
+        # Check if running in Streamlit and use secrets
+        try:
+            import streamlit as st
+            creds_path = st.secrets.get("GMAIL_CREDENTIALS", "config/gmail_credentials.json")
+            token_path = st.secrets.get("GMAIL_TOKEN", "config/gmail_token.json")
+        except (ImportError, AttributeError):
+            # Fallback to environment variables
+            creds_path = os.getenv("GMAIL_CREDENTIALS", "config/gmail_credentials.json")
+            token_path = os.getenv("GMAIL_TOKEN", "config/gmail_token.json")
+            
         if not os.path.exists(creds_path):
             raise EnvironmentError(f"GMAIL_CREDENTIALS file not found at {creds_path}. Please provide your Gmail API credentials.")
         creds = None
@@ -175,9 +191,17 @@ class EmailService:
 
     def _send_with_gmail(self, to_emails: List[str], subject: str, content: str, from_email: str = None, cc_emails: List[str] = None) -> bool:
         try:
+            # Get sender email from Streamlit secrets or environment
+            if not from_email:
+                try:
+                    import streamlit as st
+                    from_email = st.secrets.get("GMAIL_SENDER_EMAIL", "me")
+                except (ImportError, AttributeError):
+                    from_email = os.getenv("GMAIL_SENDER_EMAIL", "me")
+            
             message = MIMEText(content)
             message['to'] = ', '.join(to_emails)
-            message['from'] = from_email or "me"
+            message['from'] = from_email
             message['subject'] = subject
             if cc_emails:
                 message['cc'] = ', '.join(cc_emails)

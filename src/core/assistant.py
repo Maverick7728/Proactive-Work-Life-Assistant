@@ -468,7 +468,12 @@ class Assistant:
             )
             self.logger.info(f"Found {len(restaurants)} restaurants from APIs: {self.restaurant_service.available_apis}")
             if restaurants:
-                self.logger.info(f"Sample restaurant: {restaurants[0]}")
+                # Clean the restaurant data for logging to avoid Unicode issues
+                sample_restaurant = restaurants[0].copy()
+                # Remove problematic fields that might contain Unicode characters
+                sample_restaurant.pop('reviews', None)
+                sample_restaurant.pop('opening_hours', None)
+                self.logger.info(f"Sample restaurant: {sample_restaurant.get('name', 'Unknown')} - {sample_restaurant.get('rating', 0)}★ - {sample_restaurant.get('source', 'unknown')}")
             if not restaurants:
                 return {
                     'success': False,
@@ -493,22 +498,20 @@ class Assistant:
                     'business_status': restaurant.get('business_status', ''),
                     'reviews': restaurant.get('reviews', [])
                 })
-            # If employees is the special flag, prompt for employees
-            if employees and employees[0] == "__ASK_USER_FOR_EMPLOYEE__":
-                return {
-                    'success': False,
-                    'message': "No employees specified for the dinner. Please specify who to invite.",
-                    'next_action': 'clarify',
-                    'missing_info': ['employees']
-                }
-            # If 'everyone' or similar, get all team emails
-            if employees and set(employees) == set([member['name'] for member in self.name_matcher.get_team_members()]):
-                attendee_emails = [member['email'] for member in self.name_matcher.get_team_members()]
-            else:
-                attendee_emails = self.name_matcher.get_emails_for_names(employees)
-            # After user selects a restaurant, send dinner invite
-            # (In a real system, this would be a follow-up action after user selection)
-            # For now, just return options and wait for user selection
+            
+            # Show restaurants first, regardless of whether employees are specified
+            # If no employees specified, we'll ask for them after restaurant selection
+            attendee_emails = []
+            if employees:
+                # If employees is the special flag, we'll handle this after restaurant selection
+                if not (employees and employees[0] == "__ASK_USER_FOR_EMPLOYEE__"):
+                    # If 'everyone' or similar, get all team emails
+                    if set(employees) == set([member['name'] for member in self.name_matcher.get_team_members()]):
+                        attendee_emails = [member['email'] for member in self.name_matcher.get_team_members()]
+                    else:
+                        attendee_emails = self.name_matcher.get_emails_for_names(employees)
+            
+            # Always show restaurant options first
             return {
                 'success': True,
                 'message': f"I found {len(restaurants)} restaurants in {location} matching your criteria. Here are the top options:",
@@ -516,7 +519,8 @@ class Assistant:
                 'restaurant_details': restaurant_details,
                 'attendee_emails': attendee_emails,
                 'all_restaurants': options,
-                'next_action': 'select_restaurant'
+                'next_action': 'select_restaurant',
+                'needs_employees': not attendee_emails  # Flag to indicate if we need to ask for employees later
             }
         except Exception as e:
             self.logger.error(f"Error handling restaurant booking: {e}")
